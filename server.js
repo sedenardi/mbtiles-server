@@ -1,50 +1,49 @@
-var express = require("express"),
-    app = express(),
-    MBTiles = require('mbtiles');
+const express = require('express');
+const app = express();
+const MBTiles = require('mbtiles');
 
 if (process.argv.length < 3) {
-  console.log("Error! Missing TILES filename.\nUsage: node server.js TILES [PORT]");
+  console.log('Error! Missing TILES filename.\nUsage: node server.js TILES [PORT]');
   process.exit(1);
 }
 
-var port = 3000;
+let port = 3000;
 if (process.argv.length === 4) {
   port = parseInt(process.argv[3]);
 }
 
-var mbtilesLocation = String(process.argv[2]).replace(/\.mbtiles/,'') + '.mbtiles';
+const mbtilesLocation = process.argv[2].toString().replace(/\.mbtiles/,'') + '.mbtiles';
 
-new MBTiles(mbtilesLocation, function(err, mbtiles) {
-  if (err) throw err;
-  app.get('/:z/:x/:y.*', function(req, res) {
-    var extension = req.param(0);
-    switch (extension) {
-      case "png": {
-        mbtiles.getTile(req.param('z'), req.param('x'), req.param('y'), function(err, tile, headers) {
-          if (err) {
-            res.status(404).send('Tile rendering error: ' + err + '\n');
-          } else {
-            res.header("Content-Type", "image/png")
-            res.send(tile);
-          }
-        });
-        break;
+let mbtiles;
+app.get('/:z/:x/:y.*', (req, res) => {
+  const extension = req.params[0];
+  if (extension === 'png') {
+    mbtiles.getTile(req.params.z, req.params.x, req.params.y, (err, tile, headers) => {
+      if (err) {
+        return res.status(404).send(`Tile rendering error: ${err}\n`);
       }
-      case "grid.json": {
-        mbtiles.getGrid(req.param('z'), req.param('x'), req.param('y'), function(err, grid, headers) {
-          if (err) {
-            res.status(404).send('Grid rendering error: ' + err + '\n');
-          } else {
-            res.header("Content-Type", "text/json")
-            res.send(grid);
-          }
-        });
-        break;
+      res.header('Content-Type', 'image/png')
+      res.send(tile);
+    });
+  } else if (extension === 'grid.json') {
+    mbtiles.getGrid(req.params.z, req.params.x, req.params.y, (err, grid, headers) => {
+      if (err) {
+        return res.status(404).send(`Grid rendering error: ${err}\n`);
+      } else {
+        res.header('Content-Type', 'text/json')
+        res.send(grid);
       }
-    }
-  });
-
+    });
+  } else {
+    res.status(400).send('Wrong file format requested');
+  }
 });
 
-// actually create the server
-app.listen(port);
+new MBTiles(mbtilesLocation, (err, res) => {
+  if (err) throw err;
+  mbtiles = res;
+  app.listen(port, (aErr) => {
+    if (aErr) { console.log(aErr); }
+    console.log(`Listening on port ${port}`);
+  });
+});

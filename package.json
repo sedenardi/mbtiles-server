@@ -1,14 +1,18 @@
 {
-    "name": "mbtile-server"
-  , "description": "A crazy simple mbtiles server in node"
-  , "version": "0.0.1"
-  , "private": false
-  , "author": "Chris Helm"
-  , "dependencies": {
-    "express": "*"
-    , "mbtiles": "*"
-  }
-  , "engines": {
-    "node": "0.8.x"
+  "name": "mbtile-server",
+  "description": "A crazy simple mbtiles server in node",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/sedenardi/mbtiles-server.git"
+  },
+  "version": "0.0.1",
+  "private": false,
+  "author": "Sanders DeNardi",
+  "dependencies": {
+    "express": "^4.14.1",
+    "mbtiles": "^0.9.0"
+  },
+  "engines": {
+    "node": "4.2.0"
   }
 }
